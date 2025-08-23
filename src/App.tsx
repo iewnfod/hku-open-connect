@@ -51,15 +51,22 @@ function App() {
                 setShowDisconnect(false);
             }, 5000);
         });
+
+        listen("user-disconnect", () => {
+            setConnected(false);
+            setLoading(false);
+        });
     }, []);
 
     function handleDisconnect() {
-
+        setLoading(true);
+        invoke("disconnect_vpn");
     }
 
     function handleConnect() {
         if (connected) {
-            handleDisconnect()
+            handleDisconnect();
+            return;
         }
 
         let flag = true;
@@ -93,7 +100,7 @@ function App() {
             <Box sx={{userSelect: 'none'}}>
                 <Drawer open={open} size="md">
                     <Stack sx={{p: 5, height: '100%'}} gap={5}>
-                        <Typography level="title-lg">
+                        <Typography level="title-lg" sx={{userSelect: 'none'}}>
                             HKU VPN
                         </Typography>
                         <Stack justifyContent="space-between" sx={{height: '100%'}}>
@@ -106,6 +113,7 @@ function App() {
                                         placeholder="Email Address"
                                         value={username}
                                         onChange={e => setUsername(e.target.value)}
+                                        disabled={connected || loading}
                                         sx={{userSelect: 'none'}}
                                     />
                                 </FormControl>
@@ -118,6 +126,7 @@ function App() {
                                         type="password"
                                         value={password}
                                         onChange={e => setPassword(e.target.value)}
+                                        disabled={connected || loading}
                                         sx={{userSelect: 'none'}}
                                     />
                                 </FormControl>

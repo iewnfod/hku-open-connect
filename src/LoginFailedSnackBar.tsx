@@ -21,5 +21,5 @@ export default function LoginFailedSnackBar({
                 </Typography>
             </Stack>
         </Snackbar>
-    )
+    );
 }
