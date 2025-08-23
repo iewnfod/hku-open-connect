@@ -1,10 +1,10 @@
 #[cfg(windows)]
 use std::os::windows::process::CommandExt;
-use std::{io::{BufReader, Read, Write}, process::{Command, Stdio}, sync::Mutex, thread::{self, JoinHandle}, time::Duration};
+use std::{io::{BufReader, Read, Write}, path::PathBuf, process::{Command, Stdio}, sync::Mutex, thread::{self, JoinHandle}, time::Duration};
 
 use tauri::{AppHandle, Emitter};
 
-use crate::{OPENCONNECT_CHILD_ID, TOTP};
+use crate::{utils::get_openconnect_path, OPENCONNECT_CHILD_ID, TOTP};
 
 
 static mut STDIN_QUEUE: Mutex<Vec<String>> = Mutex::new(vec![]);
@@ -55,7 +55,12 @@ impl VpnClient {
 		println!("OpenConnect will success with: {}", &success_text);
 
 		let open_connect_handler = thread::spawn(move || {
-			let mut command = Command::new("openconnect");
+			let mut openconnect_path = PathBuf::from("openconnect");
+			if let Some(ref app) = app_handle {
+				openconnect_path = get_openconnect_path(&app);
+			}
+
+			let mut command = Command::new(openconnect_path);
 			command.arg(&host);
 			command.args(vec![
 				"-u",

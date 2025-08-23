@@ -6,6 +6,7 @@ use tauri::AppHandle;
 use crate::connect::VpnClient;
 
 mod connect;
+mod utils;
 
 pub static mut TOTP: Mutex<Option<String>> = Mutex::new(None);
 pub static mut OPENCONNECT_CHILD_ID: Mutex<Option<u32>> = Mutex::new(None);
