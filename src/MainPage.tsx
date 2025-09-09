@@ -1,11 +1,26 @@
 import React, {useEffect, useState} from "react";
 import {listen} from "@tauri-apps/api/event";
 import {invoke} from "@tauri-apps/api/core";
-import {Box, Button, Checkbox, Divider, Drawer, FormControl, FormLabel, Input, Stack, Typography} from "@mui/joy";
+import {
+    Box,
+    Button,
+    Checkbox,
+    Divider,
+    Drawer,
+    FormControl,
+    FormLabel,
+    IconButton,
+    Input,
+    Stack,
+    Typography
+} from "@mui/joy";
 import LogList from "./LogList.tsx";
 import TotpModal from "./TotpModal.tsx";
 import DisconnectSnackBar from "./DisconnectSnackBar.tsx";
 import LoginFailedSnackBar from "./LoginFailedSnackBar.tsx";
+import RestartAltTwoToneIcon from '@mui/icons-material/RestartAltTwoTone';
+
+const DEFAULT_HOST = "vpn2fa.hku.hk";
 
 export default function MainPage() {
     const [open, setOpen] = useState(false);
@@ -20,6 +35,8 @@ export default function MainPage() {
     const [showLoginFailed, setShowLoginFailed] = useState<boolean>(false);
     const [log, setLog] = useState<string[]>(["Welcome to HKU VPN (OpenConnect) Client!"]);
     const [showLog, setShowLog] = useState<boolean>(false);
+    const [host, setHost] = useState<string>(localStorage.getItem("host") ?? DEFAULT_HOST);
+    const [hostError, setHostError] = useState<boolean>(false);
 
     useEffect(() => {
         setTimeout(() => {
@@ -97,11 +114,19 @@ export default function MainPage() {
             setPasswordError(false);
         }
 
+        if (!host) {
+            setHostError(true);
+            flag = false;
+        } else {
+            localStorage.setItem("host", host);
+            setHostError(false);
+        }
+
         if (!flag) return;
 
         setShowTotp(false);
         setLoading(true);
-        invoke("connect_vpn", {username, password});
+        invoke("connect_vpn", {username, password, host});
     }
 
     async function handleTotpSubmit(totp: string) {
@@ -142,6 +167,28 @@ export default function MainPage() {
                                             onChange={e => setPassword(e.target.value)}
                                             disabled={connected || loading}
                                             sx={{userSelect: 'none'}}
+                                        />
+                                    </FormControl>
+                                    <FormControl error={hostError}>
+                                        <FormLabel>
+                                            Host
+                                        </FormLabel>
+                                        <Input
+                                            type="url"
+                                            value={host}
+                                            onChange={e => setHost(e.target.value)}
+                                            disabled={connected || loading}
+                                            sx={{userSelect: 'none'}}
+                                            endDecorator={(
+                                                <IconButton
+                                                    onClick={() => {
+                                                        setHost(DEFAULT_HOST);
+                                                        localStorage.setItem("host", DEFAULT_HOST);
+                                                    }}
+                                                >
+                                                    <RestartAltTwoToneIcon/>
+                                                </IconButton>
+                                            )}
                                         />
                                     </FormControl>
                                 </Stack>

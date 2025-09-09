@@ -36,7 +36,7 @@ impl VpnClient {
 		self
 	}
 
-	pub fn _with_host<T: ToString>(mut self, host: T) -> Self {
+	pub fn with_host<T: ToString>(mut self, host: T) -> Self {
 		self.host = host.to_string();
 		self
 	}

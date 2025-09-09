@@ -12,10 +12,11 @@ pub static mut TOTP: Mutex<Option<String>> = Mutex::new(None);
 pub static mut OPENCONNECT_CHILD_ID: Mutex<Option<u32>> = Mutex::new(None);
 
 #[tauri::command]
-fn connect_vpn(app: AppHandle, username: String, password: String) {
+fn connect_vpn(app: AppHandle, username: String, password: String, host: String) {
     let mut client = VpnClient::default()
         .with_username(username)
         .with_password(password)
+        .with_host(host)
         .with_app_handle(app);
 
     let _ = client.connect();
