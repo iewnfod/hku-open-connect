@@ -69,7 +69,7 @@ impl VpnClient {
 			command.arg("--passwd-on-stdin");
 
 			#[cfg(windows)]
-			command.creation_flags(winapi::um::winbase::CREATE_NEW_PROCESS_GROUP);
+			command.creation_flags(winapi::um::winbase::CREATE_NO_WINDOW);
 
 			command.stdin(Stdio::piped());
 			command.stdout(Stdio::piped());
@@ -165,6 +165,10 @@ impl VpnClient {
 			out_handler.join().unwrap();
 			err_handler.join().unwrap();
 			stdin_handler.join().unwrap();
+
+			if let Some(app) = app_handle {
+				app.emit("disconnect", "").unwrap();
+			}
 		});
 
 		Ok(open_connect_handler)
